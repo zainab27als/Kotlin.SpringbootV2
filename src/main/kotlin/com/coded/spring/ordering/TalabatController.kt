@@ -18,8 +18,6 @@ class TalabatController(
     fun welcomeToTalabat() = "Hello! $welcomeMessage"
 
     @PostMapping("/clients")
-    //in memory method to save the information in a list
-//fun order( @RequestBody request: OrderRequest) = "Hi ${request.name}, thank you for placing an order from ${request.restaurant} containing the following items: ${request.items} !"
     fun clients(@RequestBody request: ClientsRequest) = talabatRepository.save(UserEntity(name = request.name))
 
 }
