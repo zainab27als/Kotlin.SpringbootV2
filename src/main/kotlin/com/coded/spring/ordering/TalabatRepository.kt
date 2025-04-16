@@ -5,7 +5,9 @@ import jakarta.persistence.*
 import org.springframework.data.jpa.repository.JpaRepository
 
 @Named
-interface TalabatRepository : JpaRepository<UserEntity, Long>
+interface TalabatRepository : JpaRepository<UserEntity, Long>{
+    fun findByUsername(username: String): UserEntity?
+}
 
 @Entity
 @Table(name = "users")
@@ -14,6 +16,10 @@ data class UserEntity(
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long? = null,
     var name: String,
-){
-    constructor() : this(null, "")
+    @Column(unique = true)
+    var username: String,
+
+    var password: String
+) {
+    constructor() : this(null, "", "","")
 }
