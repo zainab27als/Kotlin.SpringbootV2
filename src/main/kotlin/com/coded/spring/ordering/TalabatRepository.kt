@@ -4,7 +4,6 @@ import jakarta.inject.Named
 import jakarta.persistence.*
 import org.springframework.data.jpa.repository.JpaRepository
 
-@Named
 interface TalabatRepository : JpaRepository<UserEntity, Long>{
     fun findByUsername(username: String): UserEntity?
 }
