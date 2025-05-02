@@ -1,33 +1,43 @@
 package com.coded.spring.ordering.menu
 
+import com.coded.spring.ordering.AppProperties
 import com.coded.spring.ordering.cache.menuHazelcastInstance
 import org.springframework.cache.annotation.Cacheable
 import org.springframework.stereotype.Service
 
 
 @Service
-class MenuService(private val menuRepository: MenuRepository) {
+class MenuService(
+    private val menuRepository: MenuRepository,
+    private val appProperties: AppProperties
+) {
 
     fun getMenu(): List<MenuEntity> {
         val cached = menuCache["all"]
-        if (cached != null) {
+        val menu = if (cached != null) {
             println("Returning menu from cache")
-            return cached
+            cached
+        } else {
+            println("Fetching menu from DB...")
+            val dbMenu = menuRepository.findAll()
+            menuCache["all"] = dbMenu
+            dbMenu
         }
-        println("Fetching menu from DB...")
-        val menu = menuRepository.findAll()
-        menuCache["all"] = menu
-        return menu
+
+        return if (appProperties.festive.enabled) {
+            menu.map { it.copy(price = (it.price * 0.8)) }
+        } else {
+            menu
+        }
     }
 
     fun addMenuItem(request: MenuRequest): MenuEntity {
         val newItem = MenuEntity(name = request.name, price = request.price)
-        val savedItem = menuRepository.save(newItem)
+        val saved = menuRepository.save(newItem)
 
         menuCache.remove("all")
         println("Cleared menu cache after adding new item")
 
-        return savedItem
+        return saved
     }
-
 }

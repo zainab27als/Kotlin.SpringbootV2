@@ -43,13 +43,4 @@ class SecurityConfig(
 
         return http.build()
     }
-//        http.csrf { it.disable() }
-//            .authorizeHttpRequests {
-//                it.requestMatchers("/menu", "/clients", "/welcome").permitAll()
-//                it.anyRequest().authenticated()
-//            }
-//            .formLogin { it.defaultSuccessUrl("/welcome", true) }
-//            .httpBasic {}
-//        return http.build()
-//    }
 }

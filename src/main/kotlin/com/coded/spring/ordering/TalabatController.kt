@@ -1,7 +1,6 @@
 package com.coded.spring.ordering
 
 import org.springframework.web.bind.annotation.*
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.security.core.userdetails.UserDetails
@@ -10,12 +9,17 @@ import org.springframework.security.core.userdetails.UserDetails
 class TalabatController(
     private val talabatRepository: TalabatRepository,
     private val passwordEncoder: PasswordEncoder,
-    @Value("\${server-welcome-message}")
-    val welcomeMessage: String
+    private val appProperties: AppProperties
 ) {
 
     @GetMapping("/welcome")
-    fun welcomeToTalabat() = "Hello! $welcomeMessage"
+    fun welcomeToTalabat(): String {
+        return if (appProperties.festive.enabled) {
+            appProperties.festive.message
+        } else {
+            "Welcome to Online Ordering by ${appProperties.companyName}"
+        }
+    }
 
     @PostMapping("/clients")
     fun clients(@RequestBody request: ClientsRequest): UserEntity {
@@ -27,11 +31,6 @@ class TalabatController(
                 password = encodedPassword
             )
         )
-    }
-
-    @GetMapping("/talabat-menu")
-    fun menu(): List<String> {
-        return listOf("Pizza", "Burger", "Sushi", "Pasta")
     }
 
     @PostMapping("/order")
@@ -51,4 +50,9 @@ data class ClientsRequest(
 
 data class OrderRequest(
     val items: List<String>
+)
+
+data class MenuItem(
+    val name: String,
+    val price: Double
 )
