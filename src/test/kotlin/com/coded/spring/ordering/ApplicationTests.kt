@@ -45,13 +45,14 @@ class ProfileControllerTest {
 	lateinit var tokenUsername: String
 	lateinit var tokenPassword: String
 
+	lateinit var token: String
+
 	@BeforeAll
 	fun setUp() {
 		val username = "ZainabAlS"
 		val rawPassword = "joincoded"
-		val existingUser = usersRepository.findByUsername(username)
 
-		if (existingUser == null) {
+		if (usersRepository.findByUsername(username) == null) {
 			val testUser = UserEntity(
 				name = "Zainab",
 				username = username,
@@ -60,9 +61,20 @@ class ProfileControllerTest {
 			usersRepository.save(testUser)
 		}
 
+		val loginRequest = AuthenticationRequest(username, rawPassword)
+		val loginResponse = restTemplate.postForEntity(
+			"http://localhost:$port/authentication/login",
+			loginRequest,
+			AuthenticationResponse::class.java
+		)
+
+		assertEquals(HttpStatus.OK, loginResponse.statusCode)
+		token = loginResponse.body?.token ?: throw IllegalStateException("Token was not returned")
+
 		tokenUsername = username
 		tokenPassword = rawPassword
 	}
+
 
 	@Test
 	fun `authenticated user can create profile`() {
@@ -74,10 +86,11 @@ class ProfileControllerTest {
 
 		val headers = HttpHeaders().apply {
 			contentType = MediaType.APPLICATION_JSON
-			setBasicAuth(tokenUsername, tokenPassword)
+			setBearerAuth(token)
 		}
 
 		val entity = HttpEntity(request, headers)
+
 		val response = restTemplate.postForEntity(
 			"http://localhost:$port/profile",
 			entity,
@@ -89,4 +102,5 @@ class ProfileControllerTest {
 		assertEquals("Zainab", response.body?.firstName)
 		assertEquals("AlSaffar", response.body?.lastName)
 	}
+
 }

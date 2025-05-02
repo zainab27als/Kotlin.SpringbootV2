@@ -14,4 +14,4 @@ spring:
 
 sql:
 init:
-mode: never  # Avoids running schema.sql/data.sql if not needed
+mode: never
