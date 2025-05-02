@@ -33,7 +33,7 @@ class SecurityConfig(
         http
             .csrf { it.disable() }
             .authorizeHttpRequests {
-                it.requestMatchers("/menu", "/clients", "/welcome", "/authentication/**").permitAll()
+                it.requestMatchers("/menu", "/clients", "/welcome", "/authentication/**","/api-docs").permitAll()
                 it.anyRequest().authenticated()
             }
             .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
